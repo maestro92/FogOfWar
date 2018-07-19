@@ -15,7 +15,7 @@ class RendererManager
         Renderer		r_fullVertexColor;
 		Renderer		r_fullColor;
 		Renderer		r_fullTexture;
-
+		Renderer		r_fow;
 		void init(int width, int height);
 };
 

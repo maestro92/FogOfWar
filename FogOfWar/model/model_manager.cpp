@@ -139,26 +139,35 @@ void ModelManager::buildQuad3D(glm::vec3 min, glm::vec3 max, glm::vec3 color,
 	glm::vec3 pos2 = glm::vec3(max.x, max.y, 0);
 	glm::vec3 pos3 = glm::vec3(min.x, max.y, 0);
 
+
+	float uv_x0 = 0;  float uv_x1 = 1;
+	float uv_y0 = 0;  float uv_y1 = 1;
+
 	int indicesStart = vertices.size();
 
 	/// 0. bot left
 	tmp.position = pos0;
 	tmp.color = color;
+	tmp.uv = glm::vec2(uv_x0, uv_y0);
 	vertices.push_back(tmp);
+
 
 	/// 1. bot right
 	tmp.position = pos1;
 	tmp.color = color;
+	tmp.uv = glm::vec2(uv_x1, uv_y0);
 	vertices.push_back(tmp);
 
 	/// 2. top right
 	tmp.position = pos2;
 	tmp.color = color;
+	tmp.uv = glm::vec2(uv_x1, uv_y1);
 	vertices.push_back(tmp);
 
 	/// 3. top left
 	tmp.position = pos3;
 	tmp.color = color;
+	tmp.uv = glm::vec2(uv_x0, uv_y1);
 	vertices.push_back(tmp);
 
 	indices.push_back(indicesStart + 1);

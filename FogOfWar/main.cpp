@@ -125,12 +125,16 @@ void FogOfWar::init()
 	//Initialize clear color
 	glClearColor(0.0f, 0.5f, 0.0f, 1.0f);
 
-//	m_pipeline.setMatrixMode(PROJECTION_MATRIX);
-//	m_pipeline.loadIdentity();
-
+/*
 	mainCamera.setPos(glm::vec3(5, 5, 0));
-	mainCamera.setZoom(8);
+	mainCamera.setZoom(60);
 	mainCamera.updateOrtho();
+	*/
+
+	mainCamera.setPos(glm::vec3(30, 30, 0));
+	mainCamera.setZoom(35);
+	mainCamera.updateOrtho();
+
 
 	glCullFace(GL_BACK);
 
@@ -167,8 +171,12 @@ void FogOfWar::init()
 			map.saveLatest = true;
 			map.init(60, 60);
 			fogManager.init(map.getWidth(), map.getHeight());
+			fogView.init(&world, &map, &fogManager);
 			mapView.init(&world, &map);
-		//	debugDrawing();
+
+			
+
+			debugDrawing();
 		}
 	}
 
@@ -189,6 +197,8 @@ void FogOfWar::initPlayer()
 	mainPlayer.vision = 5;
 	mainPlayer.simPos = map.getCellCenter(glm::ivec2(0, 0));
 	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+
+	fogManager.setSource(map.simPos2GridCoord(mainPlayer.simPos), mainPlayer.vision, FogManager::VISIBLE);
 }
 
 GLuint tempTexture;
@@ -202,9 +212,9 @@ void FogOfWar::debugDrawing()
 	//	float size = 300 / m_cameraZoom;
 
 	
-	for (int y = 0; y < map.getHeight(); y++)
+	for (int y = 0; y < map.getHeight(); y+=5)
 	{
-		for (int x = 0; x < map.getWidth(); x++)
+		for (int x = 0; x < map.getWidth(); x+=5)
 		{
 			glm::vec2 temp = map.getCellCenter(glm::ivec2(x, y));
 			glm::vec3 pos = glm::vec3(temp.x, temp.y, 0);
@@ -360,7 +370,16 @@ glm::vec3 FogOfWar::worldToScreen(glm::vec3 pos)
 }
 */
 
+void FogOfWar::updateFogByMainPlayer(glm::ivec2 prevGc)
+{
+	glm::ivec2 curGc = map.simPos2GridCoord(mainPlayer.simPos);
 
+	if (prevGc != curGc)
+	{
+		fogManager.setSource(prevGc, mainPlayer.vision, FogManager::HIDDEN);
+		fogManager.setSource(prevGc, mainPlayer.vision, FogManager::VISIBLE);
+	}
+}
 
 void FogOfWar::update()
 {
@@ -391,24 +410,39 @@ void FogOfWar::update()
 					case SDLK_n:
 						break;
 
+
 					case SDLK_w:
-						mainPlayer.move(glm::vec2(0, 1));
-						mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+						{
+							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
+							mainPlayer.move(glm::vec2(0, 1));
+							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+							updateFogByMainPlayer(prevGc);
+						}
 						break;
-
 					case SDLK_a:
-						mainPlayer.move(glm::vec2(-1, 0));
-						mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+						{
+							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
+							mainPlayer.move(glm::vec2(-1, 0));
+							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+							updateFogByMainPlayer(prevGc);
+						}
 						break;
-
 					case SDLK_s:
-						mainPlayer.move(glm::vec2(0, -1));
-						mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+						{
+							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
+							mainPlayer.move(glm::vec2(0, -1));
+							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+							updateFogByMainPlayer(prevGc);
+						}
 						break;
-
+					
 					case SDLK_d:
-						mainPlayer.move(glm::vec2(1, 0));
-						mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+						{
+							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
+							mainPlayer.move(glm::vec2(1, 0));
+							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+							updateFogByMainPlayer(prevGc);
+						}
 						break;
 
 
@@ -649,7 +683,8 @@ void FogOfWar::render()
 	*/
 	p_renderer->disableShader();
 
-
+	
+	fogView.render(mainCamera.getPipeline());
 
 
 	long long timeNowMillis = getCurrentTimeMillis();

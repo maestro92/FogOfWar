@@ -70,8 +70,11 @@ class GUIManager
         vector<Control*> m_GUIComponents;
 		vector<Control*> m_debugLabels;
 
+
+		Model* guiModel;
+
+
         QuadModel m_textureQuad;
-    //    Pipeline m_GUIPipeline;
         int m_screenWidth;
         int m_screenHeight;
 };

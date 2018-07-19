@@ -19,7 +19,7 @@ class WorldObject;
 #include "map.h"
 #include "map_view.h"
 
-
+#include "fog_view.h"
 #include <queue>
 
 #include <GL/glew.h>
@@ -200,13 +200,14 @@ class FogOfWar
 
 
 		long long getCurrentTimeMillis();
-
+		void updateFogByMainPlayer(glm::ivec2 prevGc);
 
 	private:
 		World world;
 		Camera mainCamera;
 		Player mainPlayer;
 		FogManager fogManager;
+		FogView fogView;
 };
 
 #endif

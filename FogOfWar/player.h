@@ -6,8 +6,6 @@ class Player
 	public:
 		const float STEP_SIZE = 0.3f;
 
-		void init();
-
 		glm::vec2 simPos;
 		int vision;
 

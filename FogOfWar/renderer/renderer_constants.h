@@ -20,4 +20,12 @@ namespace R_FULL_TEXTURE
 	};
 }
 
+namespace R_FOW
+{
+	enum E
+	{
+		u_texture = 0
+	};
+}
+
 #endif

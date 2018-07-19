@@ -93,7 +93,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="fog_manager.cpp" />
-    <ClCompile Include="fog_render_manager.cpp" />
+    <ClCompile Include="fog_view.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="map_view.cpp" />
     <ClCompile Include="global.cpp" />
@@ -138,7 +138,7 @@
     <ClInclude Include="client_server\client_server_enums.h" />
     <ClInclude Include="client_server\client_server_packets.h" />
     <ClInclude Include="fog_manager.h" />
-    <ClInclude Include="fog_render_manager.h" />
+    <ClInclude Include="fog_view.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="map_view.h" />
     <ClInclude Include="global.h" />

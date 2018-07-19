@@ -3,10 +3,12 @@
 #include "define.h"
 class FogManager
 {
-	const int VISIBLE = 1;
-	const int HIDDEN = 0;
 
 	public:
+		static const int HIDDEN = 0;
+		static const int VISIBLE = 1;
+
+
 
 		void init(int w, int h);
 
