@@ -1,0 +1,53 @@
+#include "world_object.h"
+#include "model_manager.h"
+
+WorldObject::WorldObject()
+{
+	active = true;
+	// m_instanceId = utl::createUniqueObjectID();
+
+    m_position = glm::vec3(0.0, 0.0, 0.0);
+    m_velocity = glm::vec3(0.0, 0.0, 0.0);
+    m_scale = glm::vec3(1.0, 1.0, 1.0);
+    m_rotation = glm::mat4(1.0);
+	
+	m_model = NULL;
+}
+
+
+WorldObject* WorldObject::getOne()
+{
+	WorldObject* obj = new WorldObject();
+	return obj;
+}
+
+
+WorldObject::~WorldObject()
+{
+
+}
+
+
+void WorldObject::renderCore(Pipeline& p, Renderer* r)
+{
+	p.pushMatrix();
+		p.translate(m_position);
+		p.addMatrix(m_rotation);
+		p.scale(m_scale);
+		r->setUniLocs(p);
+		m_model->render();
+	p.popMatrix();
+}
+
+
+bool WorldObject::canRender()
+{
+	return m_model != NULL;
+}
+
+
+bool WorldObject::shouldRender()
+{
+	return true;
+}
+
