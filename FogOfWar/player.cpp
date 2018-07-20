@@ -5,8 +5,18 @@ void Player::renderCore(Pipeline& p, Renderer* r)
 	render.render(&transform, p, r);
 }
 
-void Player::move(glm::vec2 dir)
+void Player::move()
 {
-	simPos += STEP_SIZE * dir;
+	simPos += STEP_SIZE * curDir;
+}
+
+void Player::setCurDir(glm::vec2 dir)
+{
+	curDir = dir;
+}
+
+void Player::update()
+{
+	move();
 }
 

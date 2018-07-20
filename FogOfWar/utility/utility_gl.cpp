@@ -219,7 +219,7 @@ GLuint utl::createNewDepthTexture(int w, int h)
 
 void utl::setTextureParameters(int w, int h, int internal_format, int format)
 {
-   	glTexImage2D(GL_TEXTURE_2D, 0, internal_format, w, h, 0, format, GL_FLOAT, NULL);
+   	glTexImage2D(GL_TEXTURE_2D, 0, internal_format, w, h, 0, format, GL_UNSIGNED_INT_8_8_8_8, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);

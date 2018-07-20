@@ -28,8 +28,16 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	FOWGameObject.setPosition(pos);
 	FOWGameObject.setModel(FOWModel);
 
+	m_textureWidth = map->getWidth();
+	m_textureHeight = map->getHeight();
+
 //	tex.m_id = utl::loadTexture(textureFiles[i], GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, true);
-	m_fogTexture = utl::createNewTexture(map->getWidth(), map->getHeight());
+	cout << "texture width " << m_textureWidth << endl;
+	cout << "texture height " << m_textureHeight << endl;
+
+	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
+
+	// m_fogTexture = utl::loadTexture("Assets/Images/dots.png", true);
 }
 
 
@@ -40,15 +48,60 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 //	memroy from RAM is delivered to GPU ram and this information has to travel from one place to another. This takes time and
 // is bandwidth limited.
 
+void FogView::addDirtyCells(vector<FogCell> list)
+{
+	for (int i = 0; i < list.size(); i++)
+	{
+		dirtyFogCells.push_back(list[i]);
+	}
+}
+
+void FogView::update()
+{
+	updateFOWTexture();
+}
+
+
+
+
 void FogView::updateFOWTexture()
 {
+	if (dirtyFogCells.size() > 0)
+	{
 
+		GLubyte* colorData = new GLubyte[4];
+		colorData[0] = 255;
+		colorData[1] = 255;
+		colorData[2] = 255;
+		colorData[3] = 255;
+		
+		unsigned int color = 0x000000FF;
+
+		glBindTexture(GL_TEXTURE_2D, m_fogTexture);
+
+		for (int i = 0; i < dirtyFogCells.size(); i++)
+		{
+//			glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyFogCells[i].coord.x, dirtyFogCells[i].coord.y,
+//				m_textureWidth, m_textureHeight, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, colorData);
+	
+			glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyFogCells[i].coord.x, dirtyFogCells[i].coord.y,
+				1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, (GLubyte*)(&dirtyFogCells[i].data));
+
+		}
+
+//		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+	//		1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, (GLubyte*)(&color));
+
+
+		glBindTexture(GL_TEXTURE_2D, NULL);
+
+		dirtyFogCells.clear();
+	}
 }
 
 
 void FogView::render(Pipeline& p)
 {
-
 	p_renderer = &global.rendererMgr->r_fow;
 	p_renderer->enableShader();
 		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);

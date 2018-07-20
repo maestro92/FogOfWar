@@ -10,20 +10,31 @@
 #include "map.h"
 #include "utility_gl.h"
 
+#include "fog_cell.h"
+
 class FogView
 {
+
+
 	public:
 		void init(World* world, Map* map, FogManager* fogManager);
 		void render(Pipeline& p);
+		void update();
+		void addDirtyCells(vector<FogCell> list);
 
+	private:
 
 		void updateFOWTexture();
 
-	private:
 		FogManager* m_fogManager;
 		Renderer* p_renderer;
 
 		GLuint m_fogTexture;
+		int m_textureWidth;
+		int m_textureHeight;
+
 		Model* FOWModel;
 		WorldObject FOWGameObject;
+	
+		vector<FogCell> dirtyFogCells;
 };

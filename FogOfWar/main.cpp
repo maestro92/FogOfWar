@@ -173,10 +173,7 @@ void FogOfWar::init()
 			fogManager.init(map.getWidth(), map.getHeight());
 			fogView.init(&world, &map, &fogManager);
 			mapView.init(&world, &map);
-
-			
-
-			debugDrawing();
+		//	debugDrawing();
 		}
 	}
 
@@ -198,7 +195,10 @@ void FogOfWar::initPlayer()
 	mainPlayer.simPos = map.getCellCenter(glm::ivec2(0, 0));
 	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
 
-	fogManager.setSource(map.simPos2GridCoord(mainPlayer.simPos), mainPlayer.vision, FogManager::VISIBLE);
+	vector<FogCell> dirtyFogCells;
+
+	fogManager.setSource(map.simPos2GridCoord(mainPlayer.simPos), mainPlayer.vision, FogManager::VISIBLE, dirtyFogCells);
+	fogView.addDirtyCells(dirtyFogCells);
 }
 
 GLuint tempTexture;
@@ -375,9 +375,18 @@ void FogOfWar::updateFogByMainPlayer(glm::ivec2 prevGc)
 	glm::ivec2 curGc = map.simPos2GridCoord(mainPlayer.simPos);
 
 	if (prevGc != curGc)
-	{
-		fogManager.setSource(prevGc, mainPlayer.vision, FogManager::HIDDEN);
-		fogManager.setSource(prevGc, mainPlayer.vision, FogManager::VISIBLE);
+	{		
+		vector<FogCell> dirtyFogCells;
+		fogManager.setSource(prevGc, mainPlayer.vision, FogManager::HIDDEN, dirtyFogCells);
+		fogManager.setSource(curGc, mainPlayer.vision, FogManager::VISIBLE, dirtyFogCells);
+		/*
+		cout << "printing dirty fog cells" << endl;
+		for (int i = 0; i < dirtyFogCells.size(); i++)
+		{
+			cout << "		" << dirtyFogCells[i].coord.x << " " << dirtyFogCells[i].coord.y << ", " << dirtyFogCells[i].data << endl;
+		}
+		*/
+		fogView.addDirtyCells(dirtyFogCells);
 	}
 }
 
@@ -396,6 +405,21 @@ void FogOfWar::update()
 	{
 		switch (event.type)
 		{
+
+			case SDL_KEYUP:
+				switch (event.key.keysym.sym)
+				{
+					case SDLK_w:
+					case SDLK_a:
+					case SDLK_s:
+					case SDLK_d:
+						mainPlayer.setCurDir(glm::vec2(0, 0));
+						break;
+
+
+				}
+				break;
+
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym)
 				{
@@ -410,39 +434,17 @@ void FogOfWar::update()
 					case SDLK_n:
 						break;
 
-
-					case SDLK_w:
-						{
-							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
-							mainPlayer.move(glm::vec2(0, 1));
-							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
-							updateFogByMainPlayer(prevGc);
-						}
+					case SDLK_w:						
+						mainPlayer.setCurDir(glm::vec2(0, 1));						
 						break;
-					case SDLK_a:
-						{
-							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
-							mainPlayer.move(glm::vec2(-1, 0));
-							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
-							updateFogByMainPlayer(prevGc);
-						}
+					case SDLK_a:						
+						mainPlayer.setCurDir(glm::vec2(-1, 0));						
 						break;
-					case SDLK_s:
-						{
-							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
-							mainPlayer.move(glm::vec2(0, -1));
-							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
-							updateFogByMainPlayer(prevGc);
-						}
-						break;
-					
-					case SDLK_d:
-						{
-							glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
-							mainPlayer.move(glm::vec2(1, 0));
-							mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
-							updateFogByMainPlayer(prevGc);
-						}
+					case SDLK_s:						
+						mainPlayer.setCurDir(glm::vec2(0, -1));						
+						break;					
+					case SDLK_d:						
+						mainPlayer.setCurDir(glm::vec2(1, 0));						
 						break;
 
 
@@ -503,6 +505,14 @@ void FogOfWar::update()
 		}
 	}
 
+
+	fogView.update();
+
+
+	glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);
+	mainPlayer.update();
+	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
+	updateFogByMainPlayer(prevGc);
 
 	onMouseBtnHold();
 

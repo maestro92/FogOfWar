@@ -7,12 +7,15 @@ class Player
 		const float STEP_SIZE = 0.3f;
 
 		glm::vec2 simPos;
+		glm::vec2 curDir;
 		int vision;
 
 		TransformComponent transform;
 		RenderComponent render;
 
-		void move(glm::vec2 dir);
+		void update();
+		void setCurDir(glm::vec2 dir);
+		void move();
 
 		void renderCore(Pipeline& p, Renderer* r);
 };

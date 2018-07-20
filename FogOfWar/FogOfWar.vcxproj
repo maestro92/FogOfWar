@@ -137,6 +137,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="client_server\client_server_enums.h" />
     <ClInclude Include="client_server\client_server_packets.h" />
+    <ClInclude Include="fog_cell.h" />
     <ClInclude Include="fog_manager.h" />
     <ClInclude Include="fog_view.h" />
     <ClInclude Include="map.h" />

@@ -13,7 +13,7 @@ void FogManager::init(int w, int h)
 }
 
 		
-void FogManager::setSource(glm::ivec2 center, int radius, int state)
+void FogManager::setSource(glm::ivec2 center, int radius, int state, vector<FogCell>& dirtyCells)
 {
 	int x0 = center.x;
 	int y0 = center.y;
@@ -24,10 +24,10 @@ void FogManager::setSource(glm::ivec2 center, int radius, int state)
 
 	while (y >= x)
 	{
-		fillLine(x0 - x, x0 + x, y0 + y, state);
-		fillLine(x0 - y, x0 + y, y0 + x, state);
-		fillLine(x0 - x, x0 + x, y0 - y, state);
-		fillLine(x0 - y, x0 + y, y0 - x, state);
+		fillLine(x0 - x, x0 + x, y0 + y, state, dirtyCells);
+		fillLine(x0 - y, x0 + y, y0 + x, state, dirtyCells);
+		fillLine(x0 - x, x0 + x, y0 - y, state, dirtyCells);
+		fillLine(x0 - y, x0 + y, y0 - x, state, dirtyCells);
 
 		if (err <= 0)
 		{
@@ -43,14 +43,29 @@ void FogManager::setSource(glm::ivec2 center, int radius, int state)
 }
 
 
-
-void FogManager::fillLine(int x0, int x1, int y, int state)
+void FogManager::fillLine(int x0, int x1, int y, int state, vector<FogCell>& dirtyFogCells)
 {
+
+
 	for (int x = x0; x <= x1; x++)
 	{
 		if (isValidRange(glm::ivec2(x, y)))
 		{
 			m_fogCells[y][x] = state;
+
+			dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), state));
+			
+			if (state == HIDDEN)
+			{
+			//	cout << "	" << x << " " << y << "setting shit hidden" << endl;
+				dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0x000000FF));
+			}
+			else
+			{
+			//	cout << "	" << x << " " << y << "setting shit Visible" << endl;
+				dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0xFF00FFFF));
+			}
+			
 		}
 	}
 }

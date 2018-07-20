@@ -11,7 +11,7 @@ class WorldObject;
 #include <unordered_set>
 #include "SDL.h"
 #include "SDL_image.h"
-
+#include "fog_cell.h"
 #include "define.h"
 #include "utility.h"
 

@@ -1,6 +1,11 @@
 #pragma once
 
 #include "define.h"
+#include "fog_cell.h"
+#include <vector>
+
+using namespace std;
+
 class FogManager
 {
 
@@ -12,8 +17,8 @@ class FogManager
 
 		void init(int w, int h);
 
-		void setSource(glm::ivec2 center, int radius, int state);
-		void fillLine(int x0, int x1, int y, int state);
+		void setSource(glm::ivec2 center, int radius, int state, vector<FogCell>& dirtyCells);
+		void fillLine(int x0, int x1, int y, int state, vector<FogCell>& dirtyFogCells);
 		bool isValidRange(glm::ivec2 coord);
 
 		int getWidth();
