@@ -655,11 +655,12 @@ void FogOfWar::render()
 	glCullFace(GL_BACK);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	mapView.render(mainCamera.getPipeline());
 	
-	
+
 	// Rendering wireframes
 	p_renderer = &global.rendererMgr->r_fullVertexColor;
 	p_renderer->enableShader();
@@ -709,8 +710,7 @@ void FogOfWar::render()
 
 	m_gui.initGUIRenderingSetup();
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	glDisable(GL_BLEND);
 

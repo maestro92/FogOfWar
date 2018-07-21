@@ -47,17 +47,53 @@ void MapView::init(World* world, Map* map)
 	}
 	
 	Mesh m(vertices, indices);
-
 	gridCellsModel = new Model();
 	gridCellsModel->addMesh(m);
-
 	gridCellsGameObject.setModel(gridCellsModel);
+
 
 	glm::vec3 pos = gridCellsGameObject.getPosition();
 	pos.z -= 5;
 	gridCellsGameObject.setPosition(pos);
 
 	initGridLines(world);
+
+	initBackground(world);
+}
+
+
+
+
+
+
+void MapView::initBackground(World* world)
+{
+	backgroundTexture = utl::loadTexture("Assets/Images/map.png", true);
+
+	glm::ivec2 minGc = glm::ivec2(0, 0);
+	glm::ivec2 maxGc = glm::ivec2(m_map->getWidth() - 1, m_map->getHeight() - 1);
+
+	glm::vec2 minSimPos = m_map->getCellMinCorner(minGc);
+	glm::vec2 maxSimPos = m_map->getCellMaxCorner(maxGc);
+
+	glm::vec3 minWorldPos = world->simPos2WorldPos(minSimPos);
+	glm::vec3 maxWorldPos = world->simPos2WorldPos(maxSimPos);
+
+	std::vector<VertexData> vertices;
+	std::vector<unsigned int> indices;
+	ModelManager::buildQuad3D(minWorldPos, maxWorldPos, COLOR_GRAY, vertices, indices);
+
+
+	Mesh m(vertices, indices);
+	backgroundModel = new Model();
+	backgroundModel->addMesh(m);
+	backgroundGameObject.setModel(backgroundModel);
+
+	glm::vec3 pos = backgroundGameObject.getPosition();
+	pos.z -= 10;
+	backgroundGameObject.setPosition(pos);
+
+
 }
 
 
@@ -115,6 +151,15 @@ void MapView::render(Pipeline& p)
 		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_BLACK);
 		gridLines.renderCore(p, p_renderer);
 	p_renderer->disableShader();
+
+	
+	p_renderer = &global.rendererMgr->r_fullTexture;
+	p_renderer->enableShader();
+		p_renderer->setData(R_FULL_TEXTURE::u_texture, 0, GL_TEXTURE_2D, backgroundTexture);
+		backgroundGameObject.renderCore(p, p_renderer);
+	p_renderer->disableShader();
+
+
 
 	/*
 	p_renderer = &global.rendererMgr->r_fullColor;

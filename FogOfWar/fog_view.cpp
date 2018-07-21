@@ -31,13 +31,31 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	m_textureWidth = map->getWidth();
 	m_textureHeight = map->getHeight();
 
-//	tex.m_id = utl::loadTexture(textureFiles[i], GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, true);
 	cout << "texture width " << m_textureWidth << endl;
 	cout << "texture height " << m_textureHeight << endl;
 
 	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
-
+	clearTexture();
 	// m_fogTexture = utl::loadTexture("Assets/Images/dots.png", true);
+}
+
+void FogView::clearTexture()
+{
+	glBindTexture(GL_TEXTURE_2D, m_fogTexture);
+	GLubyte* colorData = new GLubyte[4];
+	colorData[0] = 255;
+	colorData[1] = 0;
+	colorData[2] = 0;
+	colorData[3] = 0;
+	for (int y = 0; y < m_textureHeight; y++)
+	{
+		for (int x = 0; x < m_textureWidth; x++)
+		{
+			glTexSubImage2D(GL_TEXTURE_2D, 0, x, y,
+				1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, colorData);
+		}
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
@@ -66,6 +84,7 @@ void FogView::update()
 
 void FogView::updateFOWTexture()
 {
+	
 	if (dirtyFogCells.size() > 0)
 	{
 
@@ -97,6 +116,7 @@ void FogView::updateFOWTexture()
 
 		dirtyFogCells.clear();
 	}
+	
 }
 
 

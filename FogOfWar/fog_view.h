@@ -20,6 +20,7 @@ class FogView
 		void init(World* world, Map* map, FogManager* fogManager);
 		void render(Pipeline& p);
 		void update();
+		void clearTexture();
 		void addDirtyCells(vector<FogCell> list);
 
 	private:

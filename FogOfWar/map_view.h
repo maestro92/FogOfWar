@@ -18,6 +18,8 @@ class MapView
 
 	private:
 
+		void initBackground(World* world);
+
 		Map* m_map;
 
 		Renderer* p_renderer;
@@ -26,6 +28,10 @@ class MapView
 
 		Model* gridLineModels;			
 		WorldObject gridLines;
+
+		Model* backgroundModel;
+		WorldObject backgroundGameObject;
+		GLuint backgroundTexture;
 };
 
 
