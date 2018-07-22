@@ -59,12 +59,15 @@ void FogManager::fillLine(int x0, int x1, int y, int state, vector<FogCell>& dir
 			{
 			//	cout << "	" << x << " " << y << "setting shit hidden" << endl;
 				dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0x000000FF));
+			//	dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0xFFFFFFFF));
+
 			}
 			else
 			{
 			//	cout << "	" << x << " " << y << "setting shit Visible" << endl;
 			//	dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0x00FF00FF));
-				dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0x00FF0000));
+				dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0xFFFFFFFF));
+			//	dirtyFogCells.push_back(FogCell(glm::ivec2(x, y), 0x000000FF));
 			}
 			
 		}

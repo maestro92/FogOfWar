@@ -16,6 +16,7 @@ class RendererManager
 		Renderer		r_fullColor;
 		Renderer		r_fullTexture;
 		Renderer		r_fow;
+		Renderer		r_fogFadeUpdate;
 		void init(int width, int height);
 };
 

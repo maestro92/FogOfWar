@@ -28,4 +28,12 @@ namespace R_FOW
 	};
 }
 
+namespace R_FOG_FADE_UPDATE
+{
+	enum E
+	{
+		u_texture = 0
+	};
+}
+
 #endif

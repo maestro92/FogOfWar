@@ -9,7 +9,7 @@
 #include "world_object.h"
 #include "map.h"
 #include "utility_gl.h"
-
+#include "pipeline.h"
 #include "fog_cell.h"
 
 class FogView
@@ -22,6 +22,7 @@ class FogView
 		void update();
 		void clearTexture();
 		void addDirtyCells(vector<FogCell> list);
+		void fadeUpdate();
 
 	private:
 
@@ -34,8 +35,21 @@ class FogView
 		int m_textureWidth;
 		int m_textureHeight;
 
+
+
 		Model* FOWModel;
 		WorldObject FOWGameObject;
 	
 		vector<FogCell> dirtyFogCells;
+
+
+
+		GLuint m_fogFadeTexture;
+		void initFadeUpdateStuff();
+		Pipeline m_fogFadeUpdatePipeline;
+		FrameBufferObject m_fogFadeUpdateFBO;
+		Model* m_fadeUpdateQuad;
+		WorldObject o_updateQuadGameObject;
+
+
 };

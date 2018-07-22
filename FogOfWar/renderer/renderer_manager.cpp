@@ -24,5 +24,6 @@ void RendererManager::init(int width, int height)
 	Renderer::initRendererWrapper(vArray, &r_fullColor, "r_fullColor");
 	Renderer::initRendererWrapper(vArray, &r_fullTexture, "r_fullTexture");
 	Renderer::initRendererWrapper(vArray, &r_fow, "r_fow");
+	Renderer::initRendererWrapper(vArray, &r_fogFadeUpdate, "r_fogFadeUpdate");
 }
 

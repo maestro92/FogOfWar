@@ -640,7 +640,6 @@ void FogOfWar::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, RENDER_TO_SCREEN);
 	glViewport(0, 0, utl::SCREEN_WIDTH, utl::SCREEN_HEIGHT);
 
-
 	mainCamera.getPipeline().setMatrixMode(VIEW_MATRIX);
 	mainCamera.getPipeline().loadIdentity();
 	mainCamera.getPipeline().translate(0.0f, 0.0f, 5.0f);

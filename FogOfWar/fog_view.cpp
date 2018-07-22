@@ -36,7 +36,109 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 
 	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
 	clearTexture();
-	// m_fogTexture = utl::loadTexture("Assets/Images/dots.png", true);
+
+
+	initFadeUpdateStuff();
+
+}
+
+
+
+void FogView::initFadeUpdateStuff()
+{
+	m_fogFadeUpdateFBO = utl::createFrameBufferObject(m_textureWidth, m_textureHeight);
+//	m_fogFadeTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
+//	glBindRenderbuffer(GL_RENDERBUFFER, m_fogFadeTexture);
+//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_fogFadeUpdateFBO.colorTexture, 0);
+	m_fogFadeTexture = m_fogFadeUpdateFBO.colorTexture;
+
+	m_fogFadeUpdatePipeline.loadIdentity();
+	m_fogFadeUpdatePipeline.ortho(-1, 1, -1, 1, -1, 1);
+
+	std::vector<VertexData> vertices;
+	std::vector<unsigned int> indices;
+	ModelManager::buildQuad2D(glm::vec2(-1,-1), glm::vec2(1,1), COLOR_GREEN, vertices, indices);
+
+	Mesh m(vertices, indices);
+	m_fadeUpdateQuad = new Model();
+	m_fadeUpdateQuad->addMesh(m);
+	o_updateQuadGameObject.setModel(m_fadeUpdateQuad);
+}
+
+/*
+
+
+we update the RGB on our fogFadeTexture in the fade update
+then in the rendering, we use the RGB as the alpha value we will render with
+
+	we use the glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+	fogFadeTexture reads from fogTexture, and do the alpha blending update. Assume our rate is 0.3
+
+	Frame1	FogTexture	RGB (0,0,0)				FogFadeTexture	RGB(0,0,0,1)						
+			Render (color, 0)
+			
+	Frame2	FogTexture	RGB(1,1,1)				FogFadeTexture	RGB(0,0,0,1)	
+
+			src = (0.3, 0.3, 0.3, 0.3)			dst = (0,0,0,0)
+
+			Final color = (0.3, 0.3, 0.3, 0.3) * 1 + (0, 0, 0, 1) * 0.7	 
+						= (0.3, 0.3, 0.3, 1)
+			Render (color, 0.3)
+
+	Frame3	FogTexture	RGB(1,1,1)				FogFadeTexture	RGB(0.3, 0.3, 0.3, 1)	
+
+			src = (0.3, 0.3, 0.3, 0.3)			dst = (0.3, 0.3, 0.3, 1)
+
+			Final color = (0.3, 0.3, 0.3, 0.3) * 1 + (0.3, 0.3, 0.3, 1) * 0.7
+						= (0.51, 0.51, 0.51, 1) 				  
+			Render	(color, 0.51)
+
+	Frame3	FogTexture	RGB(1,1,1)				FogFadeTexture	RGB(0.51, 0.51, 0.51, 1)
+
+			src = (0.3, 0.3, 0.3, 0.3)			dst = (0.3, 0.3, 0.3, 1)
+
+			Final color = (0.3, 0.3, 0.3, 0.3) * 1 + (0.51, 0.51, 0.51, 1) * 0.7
+						= (0.657, 0.657, 0.657, 1)
+			Render	(color, 0.657)
+
+
+	Frame4	FogTexture	RGB(0,0,0)				FogFadeTexture	RGB(0.657, 0.657, 0.657, 1)	...
+	
+			src = (0.3, 0.3, 0.3, 0.3)			dst = (0.3, 0.3, 0.3, 1)
+
+			Final color = (0.0, 0.0, 0.0, 0.3) * 1 + (0.657, 0.657, 0.657, 1) * 0.7
+						= (0.4599, 0.4599, 0.4599, 1)
+			Render	(color, 0.4599)
+
+	Recall the formula is 
+		Cf = (Cs * S) + (Cd * D)
+
+	Cs is either 0 or 0.3 (or whatever your rate is)
+		D is (1-0.3)
+
+	we just need something either always increasing or decreasing, and GL_ONE, GL_ONE_MINUS_SRC satisfies it
+*/
+
+
+void FogView::fadeUpdate()
+{
+	glViewport(0, 0, m_textureWidth, m_textureHeight);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fogFadeUpdateFBO.FBO);
+
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);	
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+	p_renderer = &global.rendererMgr->r_fogFadeUpdate;
+	p_renderer->enableShader();
+		p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
+		o_updateQuadGameObject.renderCore(m_fogFadeUpdatePipeline, p_renderer);
+	p_renderer->disableShader();	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }
 
 void FogView::clearTexture()
@@ -77,6 +179,7 @@ void FogView::addDirtyCells(vector<FogCell> list)
 void FogView::update()
 {
 	updateFOWTexture();
+	fadeUpdate();
 }
 
 
@@ -124,7 +227,10 @@ void FogView::render(Pipeline& p)
 {
 	p_renderer = &global.rendererMgr->r_fow;
 	p_renderer->enableShader();
-		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
+		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogFadeTexture);
+		
+		//		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogFadeUpdateFBO.colorTexture);
+
 		FOWGameObject.renderCore(p, p_renderer);
 	p_renderer->disableShader();
 
