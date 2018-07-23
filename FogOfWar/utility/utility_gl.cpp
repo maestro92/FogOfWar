@@ -160,14 +160,20 @@ void utl::setTexture2DParams(GLuint target, GLuint filteringParam, GLuint edgePa
 
 
 
-GLuint utl::createNewTexture(int w, int h)
+GLuint utl::createNewTexture(int w, int h, GLuint filterMode, GLuint wrapMode)
 {
     GLuint textureID;
     glGenTextures(1,&textureID);
 	glBindTexture(GL_TEXTURE_2D,textureID);
+    
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, NULL);
 
-    setTextureParameters(w, h, GL_RGBA8, GL_RGBA);
-    errorCheck();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+	
+	errorCheck();
 
     // unbind the texture
     glBindTexture(GL_TEXTURE_2D,0);
@@ -302,7 +308,7 @@ void utl::errorCheck()
 
 
 
-FrameBufferObject utl::createFrameBufferObject(int width, int height)
+FrameBufferObject utl::createFrameBufferObject(int width, int height, GLuint filterMode, GLuint wrapMode)
 {
     FrameBufferObject pod;
 
@@ -313,7 +319,7 @@ FrameBufferObject utl::createFrameBufferObject(int width, int height)
     glBindFramebuffer(GL_FRAMEBUFFER, pod.FBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pod.depthTexture, 0);
 
-    pod.colorTexture = createNewTexture(width, height);
+    pod.colorTexture = createNewTexture(width, height, filterMode, wrapMode);
 
     // Attach the color buffer:
     GLuint colorbuffer;
@@ -325,11 +331,11 @@ FrameBufferObject utl::createFrameBufferObject(int width, int height)
 }
 
 
-DoubleFrameBufferObject utl::createDoubleFrameBufferObject(int width, int height)
+DoubleFrameBufferObject utl::createDoubleFrameBufferObject(int width, int height, GLuint filterMode, GLuint wrapMode)
 {
     DoubleFrameBufferObject fbObj;
-    fbObj.ping = createFrameBufferObject(width, height);
-    fbObj.pong = createFrameBufferObject(width, height);
+	fbObj.ping = createFrameBufferObject(width, height, filterMode, wrapMode);
+    fbObj.pong = createFrameBufferObject(width, height, filterMode, wrapMode);
     return fbObj;
 }
 

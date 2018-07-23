@@ -34,22 +34,26 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	cout << "texture width " << m_textureWidth << endl;
 	cout << "texture height " << m_textureHeight << endl;
 
-	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
+	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight, GL_NEAREST, GL_CLAMP_TO_BORDER);
 	clearTexture();
 
-
+	initBlurPasses();
 	initFadeUpdateStuff();
 
 }
 
 
 
+void FogView::initBlurPasses()
+{
+	blurPassFBO1 = utl::createFrameBufferObject(m_textureWidth, m_textureHeight, GL_LINEAR, GL_CLAMP_TO_BORDER);
+	blurPassFBO2 = utl::createFrameBufferObject(m_textureWidth, m_textureHeight, GL_LINEAR, GL_CLAMP_TO_BORDER);
+}
+
+
 void FogView::initFadeUpdateStuff()
 {
-	m_fogFadeUpdateFBO = utl::createFrameBufferObject(m_textureWidth, m_textureHeight);
-//	m_fogFadeTexture = utl::createNewTexture(m_textureWidth, m_textureHeight);
-//	glBindRenderbuffer(GL_RENDERBUFFER, m_fogFadeTexture);
-//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_fogFadeUpdateFBO.colorTexture, 0);
+	m_fogFadeUpdateFBO = utl::createFrameBufferObject(m_textureWidth, m_textureHeight, GL_LINEAR, GL_CLAMP_TO_BORDER);
 	m_fogFadeTexture = m_fogFadeUpdateFBO.colorTexture;
 
 	m_fogFadeUpdatePipeline.loadIdentity();
@@ -123,18 +127,42 @@ then in the rendering, we use the RGB as the alpha value we will render with
 
 void FogView::fadeUpdate()
 {
-	glViewport(0, 0, m_textureWidth, m_textureHeight);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_fogFadeUpdateFBO.FBO);
-
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDepthMask(false);
+
+	glm::vec2 texelSize = glm::vec2((float)1 / m_textureWidth, (float)1 / m_textureHeight);
+
+	glViewport(0, 0, m_textureWidth, m_textureHeight);
+	
+	p_renderer = &global.rendererMgr->r_fogEdgeBlur;
+	p_renderer->enableShader();	
+	glBindFramebuffer(GL_FRAMEBUFFER, blurPassFBO1.FBO);
+
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_texelSize, texelSize);
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_offset, 0.6667f);
+		o_updateQuadGameObject.renderCore(m_fogFadeUpdatePipeline, p_renderer);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, blurPassFBO2.FBO);
+
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_texture, 0, GL_TEXTURE_2D, blurPassFBO1.colorTexture);
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_texelSize, texelSize);
+		p_renderer->setData(R_FOG_EDGE_BLUR::u_offset, 1.5f);
+		o_updateQuadGameObject.renderCore(m_fogFadeUpdatePipeline, p_renderer);
+
+	p_renderer->disableShader();
+	
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fogFadeUpdateFBO.FBO);
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	p_renderer = &global.rendererMgr->r_fogFadeUpdate;
 	p_renderer->enableShader();
-		p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
+		p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, blurPassFBO2.colorTexture);
+		// p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
 		o_updateQuadGameObject.renderCore(m_fogFadeUpdatePipeline, p_renderer);
 	p_renderer->disableShader();	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

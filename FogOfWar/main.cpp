@@ -191,7 +191,7 @@ void FogOfWar::initPlayer()
 	mainPlayer.render.setModel(global.modelMgr->get(ModelEnum::centeredQuad));
 	mainPlayer.transform.setScale(0.8);
 
-	mainPlayer.vision = 5;
+	mainPlayer.vision = 10;
 	mainPlayer.simPos = map.getCellCenter(glm::ivec2(0, 0));
 	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
 
@@ -649,7 +649,7 @@ void FogOfWar::render()
 	
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	glDepthMask(true);
 
 	glCullFace(GL_BACK);
 	glClear(GL_DEPTH_BUFFER_BIT);

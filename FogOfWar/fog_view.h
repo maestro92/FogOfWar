@@ -26,6 +26,7 @@ class FogView
 
 	private:
 
+		void initBlurPasses();
 		void updateFOWTexture();
 
 		FogManager* m_fogManager;
@@ -41,6 +42,10 @@ class FogView
 		WorldObject FOWGameObject;
 	
 		vector<FogCell> dirtyFogCells;
+
+
+		FrameBufferObject blurPassFBO1;
+		FrameBufferObject blurPassFBO2;
 
 
 

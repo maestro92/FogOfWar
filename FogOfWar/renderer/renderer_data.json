@@ -26,6 +26,14 @@
 		}
 	},
 
+	{
+		"r": "r_map",
+		"vs": "map.vs",
+		"fs": "map.fs",
+		"data": {
+			"u_texture": "DP_INT"
+		}
+	},
 
 	{
 		"r": "r_fow",
@@ -36,6 +44,16 @@
 		}
 	},
 
+	{
+		"r": "r_fogEdgeBlur",
+		"vs": "fog_edge_blur.vs",
+		"fs": "fog_edge_blur.fs",
+		"data": {
+			"u_texture": "DP_INT",
+			"u_texelSize": "DP_VEC2",
+			"u_offset": "DP_FLOAT"
+		}
+	},
 
 	{
 		"r": "r_fogFadeUpdate",

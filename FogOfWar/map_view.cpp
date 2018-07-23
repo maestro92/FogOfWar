@@ -68,7 +68,8 @@ void MapView::init(World* world, Map* map)
 
 void MapView::initBackground(World* world)
 {
-	backgroundTexture = utl::loadTexture("Assets/Images/map.png", true);
+//	backgroundTexture = utl::loadTexture("Assets/Images/map.png", true);
+	backgroundTexture = utl::loadTexture("Assets/Images/map2.jpg", true);
 
 	glm::ivec2 minGc = glm::ivec2(0, 0);
 	glm::ivec2 maxGc = glm::ivec2(m_map->getWidth() - 1, m_map->getHeight() - 1);
@@ -153,9 +154,9 @@ void MapView::render(Pipeline& p)
 	p_renderer->disableShader();
 
 	
-	p_renderer = &global.rendererMgr->r_fullTexture;
+	p_renderer = &global.rendererMgr->r_map;
 	p_renderer->enableShader();
-		p_renderer->setData(R_FULL_TEXTURE::u_texture, 0, GL_TEXTURE_2D, backgroundTexture);
+		p_renderer->setData(R_MAP::u_texture, 0, GL_TEXTURE_2D, backgroundTexture);
 		backgroundGameObject.renderCore(p, p_renderer);
 	p_renderer->disableShader();
 

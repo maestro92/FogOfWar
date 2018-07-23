@@ -20,11 +20,29 @@ namespace R_FULL_TEXTURE
 	};
 }
 
+namespace R_MAP
+{
+	enum E
+	{
+		u_texture = 0
+	};
+}
+
 namespace R_FOW
 {
 	enum E
 	{
 		u_texture = 0
+	};
+}
+
+namespace R_FOG_EDGE_BLUR
+{
+	enum E
+	{
+		u_texture = 0,
+		u_texelSize,
+		u_offset
 	};
 }
 

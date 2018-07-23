@@ -72,7 +72,7 @@ namespace utl
 	GLuint loadTexture(vector<vector<vector<GLubyte>>> data, GLuint filteringParam, GLuint edgeParam, bool mipmapFlag = false);
 	void setTexture2DParams(GLuint target, GLuint filteringParam, GLuint edgeParam, bool mipmapFlag);
 
-	GLuint createNewTexture(int w, int h);
+	GLuint createNewTexture(int w, int h, GLuint filterMode, GLuint wrapMode);
 	GLuint createNew3DTexture(int w, int h, int d);
 	GLuint createNoiseTexture(int w, int h, int min, int max);
 
@@ -82,8 +82,8 @@ namespace utl
 	GLuint loadCubemapTexture(string* filenames);
 	void setTextureParameters(int w, int h, int internal_format, int format);
 	void setCubemapTextureParameters();
-	FrameBufferObject createFrameBufferObject(int width, int height);
-	DoubleFrameBufferObject createDoubleFrameBufferObject(int width, int height);
+	FrameBufferObject createFrameBufferObject(int width, int height, GLuint filterMode, GLuint wrapMode);
+	DoubleFrameBufferObject createDoubleFrameBufferObject(int width, int height, GLuint filterMode, GLuint wrapMode);
 
 	void setupFrameBuffer();
 	void setupFrameBuffer(GLuint target);
