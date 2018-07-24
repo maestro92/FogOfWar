@@ -32,7 +32,8 @@ namespace R_FOW
 {
 	enum E
 	{
-		u_texture = 0
+		u_texture = 0,
+		u_fogScale
 	};
 }
 

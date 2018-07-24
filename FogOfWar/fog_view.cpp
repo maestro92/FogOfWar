@@ -28,8 +28,22 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	FOWGameObject.setPosition(pos);
 	FOWGameObject.setModel(FOWModel);
 
-	m_textureWidth = map->getWidth();
-	m_textureHeight = map->getHeight();
+	m_textureWidth = m_fogManager->getWidth() - 1;
+	m_textureWidth |= m_textureWidth >> 1;    // sizes up to 4 x 4
+	m_textureWidth |= m_textureWidth >> 2;    // sizes up to 16 x 16
+	m_textureWidth |= m_textureWidth >> 4;    // sizes up to 256 x 256
+	m_textureWidth |= m_textureWidth >> 8;    // sizes up to 16384 x 16384
+	m_textureWidth += 1;
+
+	m_textureHeight = m_fogManager->getHeight() - 1;
+	m_textureHeight |= m_textureHeight >> 1;
+	m_textureHeight |= m_textureHeight >> 2;
+	m_textureHeight |= m_textureHeight >> 4;
+	m_textureHeight |= m_textureHeight >> 8;
+	m_textureHeight += 1;
+
+	// m_textureWidth = map->getWidth();
+	// m_textureHeight = map->getHeight();
 
 	cout << "texture width " << m_textureWidth << endl;
 	cout << "texture height " << m_textureHeight << endl;
@@ -39,6 +53,12 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 
 	initBlurPasses();
 	initFadeUpdateStuff();
+
+	glm::vec2 fogScale = glm::vec2(m_fogManager->getWidth() / (float)m_textureWidth, m_fogManager->getHeight() / (float)m_textureHeight);
+
+	cout << "	fogScale" << fogScale.x << " " << fogScale.y << endl;
+	p_renderer = &global.rendererMgr->r_fow;
+	p_renderer->setData(R_FOW::u_fogScale, fogScale);
 
 }
 

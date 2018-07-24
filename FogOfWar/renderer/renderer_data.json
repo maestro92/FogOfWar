@@ -40,7 +40,8 @@
 		"vs": "fow.vs",
 		"fs": "fow.fs",
 		"data": {
-			"u_texture": "DP_INT"
+			"u_texture": "DP_INT",
+			"u_fogScale": "DP_VEC2"
 		}
 	},
 
