@@ -14,7 +14,10 @@ class Camera
 		void setZoom(float zoom);		
 		void updateOrtho();
 		
-		void setOrtho(float x, float y, float width, float height, float nearIn, float farIn);
+		void forceSetOrtho(float left, float right, float bottom, float top, float nearIn, float farIn);
+
+		void setPanningBounds(glm::vec3 worldMapMin, glm::vec3 worldMapMax);
+
 
 		void zoomOut();
 		void zoomIn();
@@ -28,6 +31,12 @@ class Camera
 
 
 	private:
+		void updateBounds();
+
+		glm::vec3 m_curMinBound;
+		glm::vec3 m_curMaxBound;
+		glm::vec3 m_minBound;
+		glm::vec3 m_maxBound;
 		float m_cameraZoom;
 		Pipeline m_pipeline;
 

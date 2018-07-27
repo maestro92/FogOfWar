@@ -142,24 +142,31 @@ void MapView::initGridLines(World* world)
 void MapView::render(Pipeline& p)
 {
 	
-	p_renderer = &global.rendererMgr->r_fullVertexColor;
-	p_renderer->enableShader();
-		gridCellsGameObject.renderCore(p, p_renderer);
-	p_renderer->disableShader();
-	
-	p_renderer = &global.rendererMgr->r_fullColor;
-	p_renderer->enableShader();
-		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_BLACK);
-		gridLines.renderCore(p, p_renderer);
-	p_renderer->disableShader();
 
 	
 	p_renderer = &global.rendererMgr->r_map;
 	p_renderer->enableShader();
+	{
 		p_renderer->setData(R_MAP::u_texture, 0, GL_TEXTURE_2D, backgroundTexture);
 		backgroundGameObject.renderCore(p, p_renderer);
+	}
 	p_renderer->disableShader();
 
+	/*
+	p_renderer = &global.rendererMgr->r_fullVertexColor;
+	p_renderer->enableShader();
+	{
+		gridCellsGameObject.renderCore(p, p_renderer);
+	}
+	p_renderer->disableShader();
+	*/
+	p_renderer = &global.rendererMgr->r_fullColor;
+	p_renderer->enableShader();
+	{
+		p_renderer->setData(R_FULL_COLOR::u_color, COLOR_BLACK);
+		gridLines.renderCore(p, p_renderer);
+	}
+	p_renderer->disableShader();
 
 
 	/*

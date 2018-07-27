@@ -130,10 +130,7 @@ void FogOfWar::init()
 	mainCamera.setZoom(60);
 	mainCamera.updateOrtho();
 	*/
-
-	mainCamera.setPos(glm::vec3(30, 30, 0));
-	mainCamera.setZoom(35);
-	mainCamera.updateOrtho();
+	
 
 
 	glCullFace(GL_BACK);
@@ -177,6 +174,15 @@ void FogOfWar::init()
 		}
 	}
 
+	glm::vec3 minWorldPos = world.simPos2WorldPos(map.getCellMinCorner(glm::ivec2(0, 0)));
+	glm::vec3 maxWorldPos = world.simPos2WorldPos(map.getCellMinCorner(glm::ivec2(map.getWidth()-1, map.getHeight()-1)));
+
+	mainCamera.setPanningBounds(minWorldPos, maxWorldPos);
+	mainCamera.setPos(glm::vec3(5, 5, 0));
+	mainCamera.setZoom(10);
+
+
+
 
 	initPlayer();
 
@@ -191,7 +197,7 @@ void FogOfWar::initPlayer()
 	mainPlayer.render.setModel(global.modelMgr->get(ModelEnum::centeredQuad));
 	mainPlayer.transform.setScale(0.8);
 
-	mainPlayer.vision = 10;
+	mainPlayer.vision = 8;
 	mainPlayer.simPos = map.getCellCenter(glm::ivec2(0, 0));
 	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
 
@@ -506,6 +512,8 @@ void FogOfWar::update()
 	mainPlayer.update();
 	mainPlayer.transform.setPosition(world.simPos2WorldPos(mainPlayer.simPos));
 	updateFogByMainPlayer(prevGc);
+
+	mainCamera.setPos(mainPlayer.transform.getPosition());
 
 	onMouseBtnHold();
 

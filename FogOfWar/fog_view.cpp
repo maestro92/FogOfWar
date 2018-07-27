@@ -102,7 +102,7 @@ void FogView::initFogMeshVertex2UVMatrix(World* world, Map* map)
 	p_renderer->setData(R_FOW::u_noiseTexSamplingLocationScale, 0.05f);
 	p_renderer->setData(R_FOW::u_fogMeshVertexOrigin, fogMeshOrigin);
 	p_renderer->setData(R_FOW::u_fogMeshVertex2UVMat, fogMeshVertex2UV);
-	p_renderer->setData(R_FOW::u_noiseSpeed, 0.05f);
+	p_renderer->setData(R_FOW::u_noiseSpeed, 0.1f);
 	p_renderer->setData(R_FOW::u_edgeShape, 0.01f);
 	
 

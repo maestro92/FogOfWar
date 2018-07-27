@@ -26,7 +26,7 @@ float fbmNoise(sampler2D noiseTex, vec2 uv, float time)
 
 void main()
 {
-	float noise = fbmNoise(u_noiseTexture, vf_noiseUV, u_time);
+	float noise = fbmNoise(u_noiseTexture, vf_noiseUV, u_time * u_noiseSpeed);
 
 	// if you want to debug the noise, 
 	// fixed(noise.xxx + 0.5, 1)
@@ -47,10 +47,14 @@ void main()
 
 	// so we are interpolating between the whites parts in the noise texture
 	// and the blackest part in the noise texture
-	vec4 color0 = vec4(0, 14/255f, 49/255f, 209/255f);
-	vec4 color1 = vec4(3/255f, 0/255f, 39/255f, 214/255f);
+	vec4 color0 = vec4(0, 14/255f, 29/255f, 229/255f);
+	vec4 color1 = vec4(3/255f, 0/255f, 19/255f, 244/255f);
+
+
+
 	vec4 fogColor = mix(color0, color1, noise + 0.5f);
 
+	fogColor = vec4(0,0,0,1);
 	float alpha = 1 - texture(u_fogFadeTexture, fogUV).r;
 //	FragColor =  vec4(alpha, alpha, alpha, alpha);
 	FragColor = fogColor * alpha;

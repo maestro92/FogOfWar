@@ -9,7 +9,7 @@ void GUIManager::init(int screenWidth, int screenHeight)
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
 
-	uiCamera.setOrtho(0, m_screenWidth, m_screenHeight, 0, -1, 1);
+	uiCamera.forceSetOrtho(0, m_screenWidth, m_screenHeight, 0, -1, 1);
 
 
 	uiCamera.getPipeline().setMatrixMode(MODEL_MATRIX);
