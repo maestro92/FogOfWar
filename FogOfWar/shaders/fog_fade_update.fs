@@ -9,7 +9,5 @@ out vec4 FragColor;
 void main()
 {
 	vec2 tc = vf_UV;	 //	tc.y = 1.0 - vf_UV.y;
-//	FragColor = vec4(texture(u_texture, tc).xyz, 1) * 0.1;
 	FragColor = vec4(texture(u_texture, tc).xyz, 1) * 0.05;
-//	FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -268,7 +268,7 @@ void FogOfWar::start()
 	
 	Uint32 time0 = 0;
 	Uint32 time1 = 0;
-	
+	startedTime = utl::getCurrentTime_ms();
 	while (isRunning)
 	{
 		time0 = SDL_GetTicks();
@@ -360,15 +360,6 @@ void FogOfWar::updateCamera()
 
 
 
-/*
-glm::vec3 FogOfWar::worldToScreen(glm::vec3 pos)
-{
-	glm::vec4 viewPort = glm::vec4(0, 0, utl::SCREEN_WIDTH, utl::SCREEN_HEIGHT);
-//	glm::vec3 screenPos = glm::project(pos, glm::inverse(m_pipeline.getModelViewMatrix()), m_pipeline.getProjectionMatrix(), viewPort);
-	glm::vec3 screenPos = glm::project(pos, m_pipeline.getModelViewMatrix(), m_pipeline.getProjectionMatrix(), viewPort);
-	return screenPos;
-}
-*/
 
 void FogOfWar::updateFogByMainPlayer(glm::ivec2 prevGc)
 {
@@ -505,8 +496,10 @@ void FogOfWar::update()
 		}
 	}
 
-
-	fogView.update();
+	float time_s = utl::getCurrentTime_ms() - startedTime;
+	time_s /= (20 * 1000);
+	// cout << "time_s " << time_s << endl;
+	fogView.update(time_s);
 
 
 	glm::ivec2 prevGc = map.simPos2GridCoord(mainPlayer.simPos);

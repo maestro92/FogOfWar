@@ -6,6 +6,7 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 {
 	m_fogManager = fogManager;
 
+
 	glm::ivec2 minGc = glm::ivec2(0, 0);
 	glm::ivec2 maxGc = glm::ivec2(map->getWidth() - 1, map->getHeight() - 1);
 
@@ -28,6 +29,7 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	FOWGameObject.setPosition(pos);
 	FOWGameObject.setModel(FOWModel);
 
+	// we make it to the smallest power of 2 that is bigger than the fog map size
 	m_textureWidth = m_fogManager->getWidth() - 1;
 	m_textureWidth |= m_textureWidth >> 1;    // sizes up to 4 x 4
 	m_textureWidth |= m_textureWidth >> 2;    // sizes up to 16 x 16
@@ -42,28 +44,98 @@ void FogView::init(World* world, Map* map, FogManager* fogManager)
 	m_textureHeight |= m_textureHeight >> 8;
 	m_textureHeight += 1;
 
-	// m_textureWidth = map->getWidth();
-	// m_textureHeight = map->getHeight();
 
-	cout << "texture width " << m_textureWidth << endl;
-	cout << "texture height " << m_textureHeight << endl;
-
+	// so we fit the fog texture inside our texture, so parts of it is unused
 	m_fogTexture = utl::createNewTexture(m_textureWidth, m_textureHeight, GL_NEAREST, GL_CLAMP_TO_BORDER);
+
+	m_noiseTexture = utl::loadTexture("Assets/Images/FogNoise.png", GL_LINEAR, GL_REPEAT, false);
 	clearTexture();
 
 	initBlurPasses();
 	initFadeUpdateStuff();
 
-	glm::vec2 fogScale = glm::vec2(m_fogManager->getWidth() / (float)m_textureWidth, m_fogManager->getHeight() / (float)m_textureHeight);
 
-	cout << "	fogScale" << fogScale.x << " " << fogScale.y << endl;
-	p_renderer = &global.rendererMgr->r_fow;
-	p_renderer->setData(R_FOW::u_fogScale, fogScale);
 
+	initFogMeshVertex2UVMatrix(world, map);
 }
 
 
 
+void FogView::initFogMeshVertex2UVMatrix(World* world, Map* map)
+{
+
+	glm::vec2 fogScale = glm::vec2(m_fogManager->getWidth() / (float)m_textureWidth, m_fogManager->getHeight() / (float)m_textureHeight);
+
+
+
+	glm::ivec2 minGc = glm::ivec2(0, 0);
+	glm::ivec2 maxGc = glm::ivec2(m_fogManager->getWidth() - 1, m_fogManager->getHeight() - 1);
+
+	glm::vec2 minSimPos = map->getCellMinCorner(minGc);
+	glm::vec2 maxSimPos = map->getCellMaxCorner(maxGc);
+
+	glm::vec3 minWorldPos = world->simPos2WorldPos(minSimPos);
+	glm::vec3 maxWorldPos = world->simPos2WorldPos(maxSimPos);
+
+	glm::vec2 fogMeshOrigin = glm::vec2(minWorldPos.x, minWorldPos.y);
+	glm::vec2 xAxis = glm::vec2(maxWorldPos.x, minWorldPos.x) - fogMeshOrigin;
+	glm::vec2 yAxis = glm::vec2(minWorldPos.x, maxWorldPos.y) - fogMeshOrigin;
+	
+	/*
+		to build the matrix, we put all the axis of the coordinate system by columns
+
+			| xAxis.x		yAxis.x	|
+			|						|
+			| xAxis.y		yAxis.y	|
+	*/
+
+	float invDeterminant = 1 / (xAxis.x * yAxis.y - yAxis.x * xAxis.y);
+
+	// in the shader, we will be converting from fogMeshVertexPos to UV coordinates
+	// so we need to inverse of it
+	// also we want to scale our x values with fogScale.x and fogScale.y respectively
+	glm::vec4 fogMeshVertex2UV = invDeterminant * glm::vec4(fogScale.x * yAxis.y,		fogScale.x * -yAxis.x,
+															fogScale.y * -xAxis.y,		fogScale.y *  xAxis.x);
+	
+	// https://thebookofshaders.com/13/	
+	p_renderer = &global.rendererMgr->r_fow;
+	p_renderer->setData(R_FOW::u_noiseTexSamplingLocationScale, 0.05f);
+	p_renderer->setData(R_FOW::u_fogMeshVertexOrigin, fogMeshOrigin);
+	p_renderer->setData(R_FOW::u_fogMeshVertex2UVMat, fogMeshVertex2UV);
+	p_renderer->setData(R_FOW::u_noiseSpeed, 0.05f);
+	p_renderer->setData(R_FOW::u_edgeShape, 0.01f);
+	
+
+}
+
+
+/*
+// all about fbm
+// http://www.iquilezles.org/www/articles/warp/warp.htm
+// https://stackoverflow.com/questions/16999520/in-need-of-fractional-brownian-noise-fbm-vs-perlin-noise-clarification
+// https://code.google.com/archive/p/fractalterraingeneration/wikis/Fractional_Brownian_Motion.wiki  <<<<<<<<<<<<<< this link is very helpful!!
+// which is a simple sum of perlin noise functions with increasing frequencies and decreasing amplitudes
+// octave just means how many layers you are putting together
+// 
+
+
+	for (i = 0; i < octaves; ++i) 
+	{ 
+		total += noise((float)x * frequency, (float)y * frequency) * amplitude; 
+		frequency *= lacunarity; 
+		amplitude *= gain; 
+	}
+
+
+	lerp vs Smoothstep (Hermite Interpolation)
+
+	Lerp is the simple method that interpolates along a straight line, according to the distance you specify.
+
+	SmoothStep is similar, but first applies a curve function to the input distance value, so the movement starts out slow, speeds up in the middle, then slows down again. The velocity of the interpolation follows a kind of S curve. This function is often used in animation and blending scenarios where smooth changes are required, for instance
+	http://www.fundza.com/rman_shaders/smoothstep/index.html has some examples of how people have used it in writing Renderman shaders for offline movie rendering effects.
+	
+	https://social.msdn.microsoft.com/Forums/en-US/db16c8ab-2b78-4771-a2af-bb92a60e8ef9/game-math-101-lerp-vs-smoothstep-?forum=xnagamestudioexpress
+*/
 void FogView::initBlurPasses()
 {
 	blurPassFBO1 = utl::createFrameBufferObject(m_textureWidth, m_textureHeight, GL_LINEAR, GL_CLAMP_TO_BORDER);
@@ -182,7 +254,6 @@ void FogView::fadeUpdate()
 	p_renderer = &global.rendererMgr->r_fogFadeUpdate;
 	p_renderer->enableShader();
 		p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, blurPassFBO2.colorTexture);
-		// p_renderer->setData(R_FOG_FADE_UPDATE::u_texture, 0, GL_TEXTURE_2D, m_fogTexture);
 		o_updateQuadGameObject.renderCore(m_fogFadeUpdatePipeline, p_renderer);
 	p_renderer->disableShader();	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -224,10 +295,13 @@ void FogView::addDirtyCells(vector<FogCell> list)
 	}
 }
 
-void FogView::update()
+void FogView::update(float elapsedTime)
 {
 	updateFOWTexture();
 	fadeUpdate();
+
+	p_renderer = &global.rendererMgr->r_fow;
+	p_renderer->setData(R_FOW::u_time, elapsedTime);
 }
 
 
@@ -251,20 +325,11 @@ void FogView::updateFOWTexture()
 
 		for (int i = 0; i < dirtyFogCells.size(); i++)
 		{
-//			glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyFogCells[i].coord.x, dirtyFogCells[i].coord.y,
-//				m_textureWidth, m_textureHeight, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, colorData);
-	
 			glTexSubImage2D(GL_TEXTURE_2D, 0, dirtyFogCells[i].coord.x, dirtyFogCells[i].coord.y,
 				1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, (GLubyte*)(&dirtyFogCells[i].data));
-
 		}
 
-//		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-	//		1, 1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, (GLubyte*)(&color));
-
-
 		glBindTexture(GL_TEXTURE_2D, NULL);
-
 		dirtyFogCells.clear();
 	}
 	
@@ -275,9 +340,9 @@ void FogView::render(Pipeline& p)
 {
 	p_renderer = &global.rendererMgr->r_fow;
 	p_renderer->enableShader();
-		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogFadeTexture);
-		
-		//		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogFadeUpdateFBO.colorTexture);
+		p_renderer->setData(R_FOW::u_fogFadeTexture, 0, GL_TEXTURE_2D, m_fogFadeTexture);
+		p_renderer->setData(R_FOW::u_noiseTexture, 1, GL_TEXTURE_2D, m_noiseTexture);
+//		p_renderer->setData(R_FOW::u_texture, 0, GL_TEXTURE_2D, m_fogFadeUpdateFBO.colorTexture);
 
 		FOWGameObject.renderCore(p, p_renderer);
 	p_renderer->disableShader();

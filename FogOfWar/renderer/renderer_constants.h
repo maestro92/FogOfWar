@@ -28,15 +28,6 @@ namespace R_MAP
 	};
 }
 
-namespace R_FOW
-{
-	enum E
-	{
-		u_texture = 0,
-		u_fogScale
-	};
-}
-
 namespace R_FOG_EDGE_BLUR
 {
 	enum E
@@ -52,6 +43,21 @@ namespace R_FOG_FADE_UPDATE
 	enum E
 	{
 		u_texture = 0
+	};
+}
+
+namespace R_FOW
+{
+	enum E
+	{
+		u_fogFadeTexture = 0,
+		u_noiseTexture,
+		u_time,
+		u_noiseSpeed,
+		u_edgeShape,
+		u_noiseTexSamplingLocationScale,
+		u_fogMeshVertexOrigin,
+		u_fogMeshVertex2UVMat
 	};
 }
 

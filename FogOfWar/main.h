@@ -203,6 +203,7 @@ class FogOfWar
 		void updateFogByMainPlayer(glm::ivec2 prevGc);
 
 	private:
+		long long startedTime;
 		World world;
 		Camera mainCamera;
 		Player mainPlayer;

@@ -19,11 +19,12 @@ class FogView
 	public:
 		void init(World* world, Map* map, FogManager* fogManager);
 		void render(Pipeline& p);
-		void update();
+		void update(float elapsedTime);
 		void clearTexture();
 		void addDirtyCells(vector<FogCell> list);
 		void fadeUpdate();
-
+		void initFogMeshVertex2UVMatrix(World* world, Map* map);
+		
 	private:
 
 		void initBlurPasses();
@@ -35,7 +36,6 @@ class FogView
 		GLuint m_fogTexture;
 		int m_textureWidth;
 		int m_textureHeight;
-
 
 
 		Model* FOWModel;
@@ -50,6 +50,8 @@ class FogView
 
 
 		GLuint m_fogFadeTexture;
+		GLuint m_noiseTexture;
+
 		void initFadeUpdateStuff();
 		Pipeline m_fogFadeUpdatePipeline;
 		FrameBufferObject m_fogFadeUpdateFBO;

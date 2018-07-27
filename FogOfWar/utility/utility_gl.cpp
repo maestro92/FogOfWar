@@ -146,8 +146,8 @@ void utl::setTexture2DParams(GLuint target, GLuint filteringParam, GLuint edgePa
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
-	else
 
+	// GL_TEXTURE_MAG_FILTER only gest GL_NEAREST or GL_LINEAR, so we set GL_LINEAR by default
 	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filteringParam);
 
